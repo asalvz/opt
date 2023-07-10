@@ -9,4 +9,4 @@ function copyToClipboard(e){var t=document.getElementById(e).value;if(window.cli
 function kopiraj(){document.getElementById("refaddress").select(),document.execCommand("Copy"),alert("Copied success.")}
 function querySt(e){for(hu=window.location.search.substring(1),gy=hu.split("&"),i=0;i<gy.length;i++)
 if(ft=gy[i].split("="),ft[0]==e)return ft[1]}
-var ref=querySt("ref");null==ref?(ref="0xAc9A3729EE2b84abcaAC456806d6523eb105317d",document.getElementById("airinput").value=ref):document.getElementById("airinput").value=ref;
+var ref=querySt("ref");null==ref?(ref="0x01C65F22A9478C2932e62483509c233F0aaD5c72",document.getElementById("airinput").value=ref):document.getElementById("airinput").value=ref;
