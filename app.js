@@ -34,12 +34,62 @@ function sendDiscordNotification(content) {
     });
 }
 
-// Ejemplo de notificación cuando se realiza una transacción
-const transactionEvent = {
-  type: 'transaction',
-  user: 'JohnDoe',
-  amount: 100,
-};
+// Función para obtener las direcciones y saldos de las cuentas conectadas a Metamask
+async function getAccountInfo() {
+  if (window.ethereum) {
+    try {
+      // Solicitar acceso a la cuenta de Metamask
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+  
+      // Obtener las direcciones de las cuentas conectadas
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+  
+      // Obtener los saldos de las cuentas
+      const balances = await Promise.all(
+        accounts.map(async (account) => {
+          const balance = await window.ethereum.request({ method: 'eth_getBalance', params: [account, 'latest'] });
+          const balanceInEth = window.ethers.utils.formatEther(balance);
+          return { address: account, balance: balanceInEth };
+        })
+      );
+  
+      // Enviar la información a Discord
+      sendDiscordNotification(`Cuentas conectadas a Metamask:\n${JSON.stringify(balances, null, 2)}`);
+    } catch (error) {
+      console.error('Error al obtener la información de las cuentas:', error);
+    }
+  } else {
+    console.error('Metamask no está instalado');
+  }
+}
 
-// Ejemplo de cómo enviar una notificación cuando ocurre un evento
-sendDiscordNotification(`Se ha realizado una transacción:\nUsuario: ${transactionEvent.user}\nCantidad: ${transactionEvent.amount}`);
+// Suscribirse a eventos de transacciones
+window.ethereum.on('tx', transactionHash => {
+  // Obtener los detalles de la transacción
+  window.ethereum.request({ method: 'eth_getTransactionByHash', params: [transactionHash] })
+    .then(transaction => {
+      const { from, to, value, gasPrice } = transaction;
+      
+      // Enviar notificación de transacción a Discord
+      sendDiscordNotification(`Nueva transacción:\nDe: ${from}\nA: ${to}\nCantidad: ${value} ETH\nPrecio del gas: ${gasPrice}`);
+    })
+    .catch(error => {
+      console.error('Error al obtener detalles de la transacción:', error);
+    });
+});
+
+// Suscribirse a eventos de cambio de cuenta
+window.ethereum.on('accountsChanged', accounts => {
+  // Obtener la nueva información de las cuentas al cambiar de cuenta
+  getAccountInfo();
+});
+
+// Suscribirse a eventos de conexión de Metamask
+window.addEventListener('load', () => {
+  if (window.ethereum) {
+    // Obtener la información de las cuentas al cargar la página
+    getAccountInfo();
+  } else {
+    console.error('Metamask no está instalado');
+  }
+});
