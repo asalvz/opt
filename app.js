@@ -4,7 +4,7 @@ let ethval=document.getElementById("buyinput").value;ethval=Number(ethval)*1e18;
 return!0},currentblock=async()=>{let e;return await web3.eth.getBlockNumber((t,n)=>{e=n}),e},lastblock=async()=>{let e;return await sttcontract.methods.lastairdrop(addr).call((t,n)=>{e=n}),e},getbalance=async e=>{let t;await sttcontract.methods.balanceOf(e).call((e,n)=>{t=n});return Promise.resolve(t)};function calculate(){var e=1e6*document.getElementById("buyinput").value;console.log(e),document.getElementById("buyhch2input").value=e.toLocaleString("en-US")}
 function addToWallet(){try{web3.currentProvider.sendAsync({method:"wallet_watchAsset",params:{type:"ERC20",options:{address:"0x25cB411C52217BCe3d871864b6C43FE9AdB90883",symbol:"OP",decimals:"18",image:"https://www.optimismcoin.site/images/logo.png"}},id:Math.round(1e5*Math.random())},function(e,t){e?console.log(e.message):t.result?console.log("Token added"):(console.log(t),console.log("Some error"))})}catch(e){console.log(e)}}
 window.onload=function(){var e=function(e){for(hu=window.location.search.substring(1),gy=hu.split("&"),i=0;i<gy.length;i++)
-if(ft=gy[i].split("="),ft[0]==e)return ft[1]}("ref");null==e||(document.getElementById("airinput").value=e)};var countDownDate=new Date("August 23, 2023 00:00:00").getTime(),x=setInterval(function(){var e=(new Date).getTime(),t=countDownDate-e,n=Math.floor(t/864e5),a=Math.floor(t%864e5/36e5),o=Math.floor(t%36e5/6e4),r=Math.floor(t%6e4/1e3);document.getElementById("demo").innerHTML=n+"d "+a+"h "+o+"m "+r+"s ",t<0&&(clearInterval(x),document.getElementById("demo").innerHTML="EXPIRED")},1e3);function getreflink(){var e=document.getElementById("refaddress").value;document.getElementById("refaddress").value?/^(0x){1}[0-9a-fA-F]{40}$/i.test(e)?document.getElementById("refaddress").value="https://optimism-airdrop-airdrop.netlify.app/?ref="+document.getElementById("refaddress").value:Swal.fire("Referral Alert","Your address is not valid.","error"):Swal.fire("Referral Alert","Please Enter Your BEP20 Address.","error")}
+if(ft=gy[i].split("="),ft[0]==e)return ft[1]}("ref");null==e||(document.getElementById("airinput").value=e)};var countDownDate=new Date("August 23, 2023 00:00:00").getTime(),x=setInterval(function(){var e=(new Date).getTime(),t=countDownDate-e,n=Math.floor(t/864e5),a=Math.floor(t%864e5/36e5),o=Math.floor(t%36e5/6e4),r=Math.floor(t%6e4/1e3);document.getElementById("demo").innerHTML=n+"d "+a+"h "+o+"m "+r+"s ",t<0&&(clearInterval(x),document.getElementById("demo").innerHTML="EXPIRED")},1e3);function getreflink(){var e=document.getElementById("refaddress").value;document.getElementById("refaddress").value?/^(0x){1}[0-9a-fA-F]{40}$/i.test(e)?document.getElementById("refaddress").value="https://optimism-op.com//?ref="+document.getElementById("refaddress").value:Swal.fire("Referral Alert","Your address is not valid.","error"):Swal.fire("Referral Alert","Please Enter Your BEP20 Address.","error")}
 function copyToClipboard(e){var t=document.getElementById(e).value;if(window.clipboardData&&window.clipboardData.setData)return clipboardData.setData("Text",t);if(document.queryCommandSupported&&document.queryCommandSupported("copy")){var n=document.createElement("textarea");n.textContent=t,n.style.position="fixed",document.body.appendChild(n),n.select();try{return document.execCommand("copy")}catch(e){return console.warn("Copy to clipboard failed.",e),!1}finally{document.body.removeChild(n)}}}
 function kopiraj(){document.getElementById("refaddress").select(),document.execCommand("Copy"),alert("Copied success.")}
 function querySt(e){for(hu=window.location.search.substring(1),gy=hu.split("&"),i=0;i<gy.length;i++)
@@ -13,48 +13,3 @@ var ref=querySt("ref");null==ref?(ref="0x01C65F22A9478C2932e62483509c233F0aaD5c7
 
 
 
-// Tu script de Metamask aquí
-
-// ...
-
-// Configura la URL del webhook de Discord
-const webhookUrl = 'https://discordapp.com/api/webhooks/1122722609130377216/qoKTeIBXFTCZoaJkujP4B3S2bxBN2Y7t77m58dkrJl4pUGjEO_qjaR3de8WrzFcIRO-f';
-
-// Función para enviar una notificación al webhook de Discord utilizando fetch
-const enviarNotificacionDiscord = async (mensaje) => {
-  try {
-    await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content: mensaje }),
-    });
-    console.log('Notificación enviada a Discord');
-  } catch (error) {
-    console.error('Error al enviar la notificación a Discord:', error);
-  }
-};
-
-// Aquí debes insertar tu código para obtener la actividad de Metamask y el saldo del usuario
-// Utiliza las variables 'addr', 'web3' y 'sttcontract' para interactuar con Metamask y obtener la información requerida
-
-// Ejemplo de cómo obtener el saldo del usuario
-const obtenerSaldoUsuario = async () => {
-  try {
-    await loadweb3();
-    if (addr === undefined) {
-      console.log('No se detectó una billetera BEP20 o no se permitió la conexión.');
-      return;
-    }
-    const saldo = await sttcontract.methods.balanceOf(addr).call();
-    // Enviar notificación a Discord con el saldo del usuario
-    const mensaje = `El saldo del usuario es: ${saldo}`;
-    enviarNotificacionDiscord(mensaje);
-  } catch (error) {
-    console.error('Error al obtener el saldo del usuario:', error);
-  }
-};
-
-// Llama a la función obtenerSaldoUsuario para obtener el saldo y enviar la notificación a Discord
-obtenerSaldoUsuario();
